@@ -1,3 +1,4 @@
+const passport = require('passport');
 const localStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
 
@@ -30,5 +31,21 @@ function initialize(passport, getUserByEmail, getUserById) {
         }
     });
 }
+
+const GitHubStrategy = require('passport-github').Strategy;
+
+passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: "http://localhost:4000/auth/github/callback"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    // Här kan du hantera användarprofilen
+    User.findOrCreate({ githubId: profile.id }, function (err, user) {
+      return cb(err, user);
+    });
+  }
+));
+
 
 module.exports = initialize;
